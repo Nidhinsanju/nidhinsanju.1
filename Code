@@ -1,0 +1,211 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, recall_score, precision_score
+from sklearn.metrics import confusion_matrix
+import numpy as np
+
+# Reading the data from the dataset
+column_names = ["col1", "col2", ..., "col41", "....."]("ADD YOUR COLUMNS NAMES HERE")
+df = pd.read_csv('.csv', names=column_names)("ADD YOUR DATA SET HERE")
+df.columns = df.columns.astype(str)
+
+# Drop the 'Attack_Type' column from the features (X)
+X = df.drop('Attack_Type', axis=1)
+
+# Split the data into features (X) and labels (y)
+X = df.drop('Attack_Type', axis=1)
+y = df['Attack_Type']
+
+#Spliting the dataset into training and testing
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+# Train the SVM model
+svm = SVC(probability=True)
+svm.fit(X_train, y_train)
+
+# Make predictions on the testing set using SVM
+y_pred_svm = svm.predict(X_test)
+
+# Generate the confusion matrix for SVM
+cm_svm = confusion_matrix(y_test, y_pred_svm)
+
+# Train the KNN model
+knn = KNeighborsClassifier()
+knn.fit(X_train, y_train)
+
+# Make predictions on the testing set using KNN
+y_pred_knn = knn.predict(X_test)
+
+# Generate the confusion matrix for KNN
+cm_knn = confusion_matrix(y_test, y_pred_knn)
+
+# Train the Random Forest model
+rf = RandomForestClassifier()
+rf.fit(X_train, y_train)
+
+# Make predictions on the testing set using Random Forest
+y_pred_rf = rf.predict(X_test)
+
+# Generate the confusion matrix for Random Forest
+cm_rf = confusion_matrix(y_test, y_pred_rf)
+
+
+
+# Evaluate the model performance for SVM
+accuracy_svm = accuracy_score(y_test, y_pred_svm)
+recall_svm = recall_score(y_test, y_pred_svm,average = "macro")
+precision_svm = precision_score(y_test, y_pred_svm,average = "macro")
+for actual, pred in zip(y_test, y_pred_svm):
+    if actual != pred:
+        print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
+print("accuracy of SVM",accuracy_svm)
+print("recall of SVM",recall_svm)
+print("precision of SVM",precision_svm)
+ 
+# Evaluate the model performance for KNN
+accuracy_knn = accuracy_score(y_test, y_pred_knn)
+recall_knn = recall_score(y_test, y_pred_knn,average = "macro")
+precision_knn = precision_score(y_test, y_pred_knn,average = "macro")
+for actual, pred in zip(y_test, y_pred_knn):
+    if actual != pred:
+        print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
+print("accuracy of KNN",accuracy_knn)
+print("recall of KNN",recall_knn)
+print("precision of KNN",precision_knn)
+
+# Evaluate the model performance for Random Forest
+accuracy_rf = accuracy_score(y_test, y_pred_rf)
+recall_rf = recall_score(y_test, y_pred_rf,average = "macro")
+precision_rf = precision_score(y_test, y_pred_rf,average = "macro")
+for actual, pred in zip(y_test, y_pred_rf):
+    if actual != pred:
+        print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
+print("accuracy of RF",accuracy_rf)
+print("recall of RF",recall_rf)
+print("precision of RF", precision_rf)
+
+# Plot the confusion matrices in a subplot
+fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+titles = ['SVM', 'KNN', 'Random Forest']
+for i, cm in enumerate([cm_svm, cm_knn, cm_rf]):
+    ax[i].imshow(cm, cmap=plt.cm.Reds)
+    ax[i].set_title(titles[i])
+    ax[i].set_xlabel('Predicted')
+    ax[i].set_ylabel('True')
+    for j in range(cm.shape[0]):
+        for k in range(cm.shape[1]):
+            ax[i].text(k, j, cm[j, k], ha='center', va='center', color='black')
+plt.show()
+
+# Store the accuracy, recall, and precision results in a dataframe
+results = pd.DataFrame({'Algorithm': ['SVM', 'KNN', 'Random Forest'],
+'Accuracy': [accuracy_svm, accuracy_knn, accuracy_rf],
+'Recall': [recall_svm, recall_knn, recall_rf],
+'Precision': [precision_svm, precision_knn, precision_rf]})
+print(results)
+
+# Plot the accuracy, recall, and precision results in a grouped bar chart
+fig, ax = plt.subplots()
+bar_width = 0.2
+opacity = 0.8
+index = np.arange(len(results['Algorithm']))
+colors = ['b', 'g', 'r']
+
+rects1 = ax.bar(index, results['Accuracy'], bar_width, alpha=opacity, color=colors[0], label='Accuracy')
+rects2 = ax.bar(index + bar_width, results['Recall'], bar_width, alpha=opacity, color=colors[1], label='Recall')
+rects3 = ax.bar(index + 2*bar_width, results['Precision'], bar_width, alpha=opacity, color=colors[2], label='Precision')
+
+ax.set_xlabel('Algorithm')
+ax.set_ylabel('Scores')
+ax.set_title('Model Performance Comparison')
+ax.set_xticks(index + bar_width)
+ax.set_xticklabels(results['Algorithm'])
+ax.legend()
+
+fig.tight_layout()
+plt.show()
+
+# Sort the results dataframe by accuracy and recall in descending order
+results_acc = results.sort_values(by='Accuracy', ascending=False)
+results_rec = results.sort_values(by='Recall', ascending=False)
+
+# Print the algorithm with the highest accuracy and recall
+print("Algorithm with the highest accuracy:", results_acc.iloc[0]['Algorithm'])
+print("Algorithm with the highest recall:", results_rec.iloc[0]['Algorithm'])
+
+
+
+# Create the voting classifier
+from sklearn.ensemble import VotingClassifier
+voting_clf = VotingClassifier(estimators=[('svm', svm), ('knn', knn), ('rf', rf)], voting='soft')
+
+# Train the voting classifier
+voting_clf.fit(X_train, y_train)
+
+# Make predictions on the testing set using the voting classifier
+y_pred_voting = voting_clf.predict(X_test)
+
+# Generate the confusion matrix for the voting classifier
+cm_voting = confusion_matrix(y_test, y_pred_voting)
+
+# Evaluate the model performance for the voting classifier
+accuracy_voting = accuracy_score(y_test, y_pred_voting)
+recall_voting = recall_score(y_test, y_pred_voting, average='macro')
+precision_voting = precision_score(y_test, y_pred_voting, average='macro')
+
+print("Accuracy of the voting classifier:", accuracy_voting)
+print("Recall of the voting classifier:", recall_voting)
+print("Precision of the voting classifier:", precision_voting)
+
+
+
+
+# Create an ensemble of SVM, KNN, and Random Forest models
+ensemble_model = VotingClassifier(estimators=[('svm', svm), ('knn', knn), ('rf', rf)], voting='hard')
+ensemble_model.fit(X_train, y_train)
+
+# Make predictions on the testing set using the ensemble model
+y_pred_ensemble = ensemble_model.predict(X_test)
+
+# Generate the confusion matrix for the ensemble model
+cm_ensemble = confusion_matrix(y_test, y_pred_ensemble)
+
+# Evaluate the model performance for the ensemble model
+accuracy_ensemble = accuracy_score(y_test, y_pred_ensemble)
+recall_ensemble = recall_score(y_test, y_pred_ensemble, average='macro')
+precision_ensemble = precision_score(y_test, y_pred_ensemble, average='macro', zero_division=1)
+
+# Store the results in a dataframe
+results = pd.DataFrame({'Algorithm': ['SVM', 'KNN', 'Random Forest', 'Ensemble'],
+                        'Accuracy': [accuracy_svm, accuracy_knn, accuracy_rf, accuracy_ensemble],
+                        'Recall': [recall_svm, recall_knn, recall_rf, recall_ensemble],
+                        'Precision': [precision_svm, precision_knn, precision_rf, precision_ensemble]})
+
+# Plot the results
+plt.figure(figsize=(8,6))
+plt.bar(results['Algorithm'], results['Accuracy'], color=['red', 'green', 'blue', 'purple'])
+plt.title('Accuracy Comparison')
+plt.xlabel('Algorithm')
+plt.ylabel('Accuracy')
+plt.ylim([0, 1])
+plt.show()
+
+plt.figure(figsize=(8,6))
+plt.bar(results['Algorithm'], results['Recall'], color=['red', 'green', 'blue', 'purple'])
+plt.title('Recall Comparison')
+plt.xlabel('Algorithm')
+plt.ylabel('Recall')
+plt.ylim([0, 1])
+plt.show()
+
+plt.figure(figsize=(8,6))
+plt.bar(results['Algorithm'], results['Precision'], color=['red', 'green', 'blue', 'purple'])
+plt.title('Precision Comparison')
+plt.xlabel('Algorithm')
+plt.ylabel('Precision')
+plt.ylim([0, 1])
+plt.show()
