@@ -209,4 +209,3 @@ plt.xlabel('Algorithm')
 plt.ylabel('Precision')
 plt.ylim([0, 1])
 plt.show()
-
