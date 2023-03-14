@@ -14,7 +14,7 @@ df = pd.read_csv('.csv', names=column_names)("ADD YOUR DATA SET HERE")
 df.columns = df.columns.astype(str)
 
 # Drop the 'Attack_Type' column from the features (X)
-X = df.drop('Attack_Type', axis=1)
+X = df.drop('Attack_Type', axis=1)("ADD UR FEATURES HERE")
 
 # Split the data into features (X) and labels (y)
 X = df.drop('Attack_Type', axis=1)
@@ -58,7 +58,7 @@ cm_rf = confusion_matrix(y_test, y_pred_rf)
 # Evaluate the model performance for SVM
 accuracy_svm = accuracy_score(y_test, y_pred_svm)
 recall_svm = recall_score(y_test, y_pred_svm,average = "macro")
-precision_svm = precision_score(y_test, y_pred_svm,average = "macro")
+precision_svm = precision_score(y_test, y_pred_svm,average = "macro",zero_division=1)
 for actual, pred in zip(y_test, y_pred_svm):
     if actual != pred:
         print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
@@ -69,7 +69,7 @@ print("precision of SVM",precision_svm)
 # Evaluate the model performance for KNN
 accuracy_knn = accuracy_score(y_test, y_pred_knn)
 recall_knn = recall_score(y_test, y_pred_knn,average = "macro")
-precision_knn = precision_score(y_test, y_pred_knn,average = "macro")
+precision_knn = precision_score(y_test, y_pred_knn,average = "macro",zero_division=1)
 for actual, pred in zip(y_test, y_pred_knn):
     if actual != pred:
         print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
@@ -80,7 +80,7 @@ print("precision of KNN",precision_knn)
 # Evaluate the model performance for Random Forest
 accuracy_rf = accuracy_score(y_test, y_pred_rf)
 recall_rf = recall_score(y_test, y_pred_rf,average = "macro")
-precision_rf = precision_score(y_test, y_pred_rf,average = "macro")
+precision_rf = precision_score(y_test, y_pred_rf,average = "macro",zero_division=1)
 for actual, pred in zip(y_test, y_pred_rf):
     if actual != pred:
         print(f'Actual Attack: {actual} | Predicted Attack: {pred}')
@@ -155,7 +155,7 @@ cm_voting = confusion_matrix(y_test, y_pred_voting)
 # Evaluate the model performance for the voting classifier
 accuracy_voting = accuracy_score(y_test, y_pred_voting)
 recall_voting = recall_score(y_test, y_pred_voting, average='macro')
-precision_voting = precision_score(y_test, y_pred_voting, average='macro')
+precision_voting = precision_score(y_test, y_pred_voting, average='macro',zero_division=1)
 
 print("Accuracy of the voting classifier:", accuracy_voting)
 print("Recall of the voting classifier:", recall_voting)
